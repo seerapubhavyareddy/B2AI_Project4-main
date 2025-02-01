@@ -1,0 +1,16 @@
+Feature Selection Method: CFS
+Threshold: 0.9
+Test Accuracy: 0.8105489773950484
+F1 Score: 0.7996236381714029
+Precision: 0.8011310505964232
+Recall: 0.8105489773950484
+AUC: 0.7767558528428093
+
+              precision    recall  f1-score   support
+
+           0       0.83      0.92      0.88       676
+           1       0.71      0.51      0.59       253
+
+    accuracy                           0.81       929
+   macro avg       0.77      0.72      0.74       929
+weighted avg       0.80      0.81      0.80       929

@@ -4,21 +4,19 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 import os
-from itertools import combinations
+import traceback
 
-# Configuration - use the same as your original code
+# Configuration
 BASE_DIR = "/home/b/bhavyareddyseerapu/B2AI_Project4-main/model/features"
-OUTPUT_DIR = "/home/b/bhavyareddyseerapu/B2AI_Project4-main/model/features/subject_paired_ttest_results"
+OUTPUT_DIR = "/home/b/bhavyareddyseerapu/B2AI_Project4-main/model/features/xgboost_pca_analysis"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 DATA_TYPES = ['fimo', 'deep', 'rp', 'reg']
 PCA_COMPONENT = "0.95"
-CFS_THRESHOLD = "0.7"
-PCA_FEATURES = "120"  # Adjust this if needed for different datatype PCA components
-CFS_FEATURES = "200"
+PCA_FEATURES = "120"  # Base PCA features value
 FOLDS = range(1, 6)  # Folds 1-5
 
-# Define PCA features per data type - you might need to adjust these values
+# Define PCA features per data type
 PCA_FEATURES_BY_TYPE = {
     'fimo': '120',
     'deep': '120',
@@ -28,10 +26,9 @@ PCA_FEATURES_BY_TYPE = {
 
 def parse_classification_report(file_path):
     """
-    Parse a classification report text file to extract subject-level metrics AND subject-wise predictions
+    Parse a classification report text file to extract subject-level metrics
     """
     metrics = {}
-    subject_predictions = {}
     
     try:
         with open(file_path, 'r') as f:
@@ -40,42 +37,17 @@ def parse_classification_report(file_path):
         # Initialize flags to track which section we're in
         in_subject_section = False
         in_chunk_section = False
-        in_subject_predictions = False
         subject_info_found = False
         
-        # Try to find subject predictions by looking for patterns
-        for i, line in enumerate(lines):
-            # Check if this could be a subject prediction line
-            # Look for lines with a pattern like: "subject_id 0 1" or "patient_123 1 0"
-            # This would likely be ID, actual label, predicted label
-            if not in_subject_predictions and i > 10:  # Skip header lines
-                parts = line.strip().split()
-                if len(parts) >= 3:
-                    # Check if the last two items look like 0/1 or class labels
-                    try:
-                        val1 = int(parts[-2])
-                        val2 = int(parts[-1])
-                        if all(x in [0, 1] for x in [val1, val2]):
-                            # This might be a predictions line
-                            in_subject_predictions = True
-                    except (ValueError, IndexError):
-                        pass
-            
+        for line in lines:
             # Determine which section we're in based on headers
             if "SUBJECT-LEVEL METRICS" in line or "Subject-level metrics" in line:
                 in_subject_section = True
                 in_chunk_section = False
-                in_subject_predictions = False
                 continue
             elif "CHUNK-LEVEL METRICS" in line or "Chunk-level metrics" in line:
                 in_subject_section = False
                 in_chunk_section = True
-                in_subject_predictions = False
-                continue
-            elif "SUBJECT-WISE PREDICTIONS" in line or "Subject-wise predictions" in line or "SUBJECT PREDICTIONS" in line:
-                in_subject_section = False
-                in_chunk_section = False
-                in_subject_predictions = True
                 continue
             
             # Extract metrics based on the current section
@@ -123,23 +95,6 @@ def parse_classification_report(file_path):
                     except (ValueError, IndexError):
                         pass
             
-            # Extract subject-wise predictions if in that section
-            elif in_subject_predictions:
-                if line.strip() and not line.startswith('---') and not any(x in line.lower() for x in ["subject", "actual", "predicted"]):
-                    parts = line.strip().split()
-                    if len(parts) >= 3:  # Ensure we have subject ID, actual, and predicted
-                        try:
-                            subject_id = parts[0]
-                            actual = int(parts[-2])
-                            predicted = int(parts[-1])
-                            subject_predictions[subject_id] = {
-                                'actual': actual,
-                                'predicted': predicted,
-                                'correct': actual == predicted
-                            }
-                        except (ValueError, IndexError):
-                            pass  # Skip lines that don't match our expected format
-            
             # Fall back to chunk-level metrics if no subject section is found
             elif not subject_info_found and not in_subject_section and not in_chunk_section:
                 if 'Test Accuracy:' in line or 'Accuracy:' in line:
@@ -169,119 +124,61 @@ def parse_classification_report(file_path):
                     except (ValueError, IndexError):
                         pass
         
-        # If subject predictions were found, print information
-        if subject_predictions:
-            print(f"Found predictions for {len(subject_predictions)} subjects in {file_path}")
-        
         # If no metrics were found, print a warning
         if not metrics:
             print(f"Warning: No metrics found in {file_path}")
             
     except Exception as e:
         print(f"Error parsing file {file_path}: {str(e)}")
-        return {}, {}
+        return {}
     
-    return metrics, subject_predictions
+    return metrics
 
-def collect_model_results(model_type='RF', feature_selection='CFS'):
+def collect_xgboost_pca_results():
     """
-    Collect results from all data types for a specific model and feature selection method
+    Collect results for XGBoost-PCA model from all data types
     """
     results = []
-    subject_results = {}  # Dictionary to store subject-level predictions by fold
     
     for data_type in DATA_TYPES:
         # Get correct PCA features for this data type
-        if feature_selection == 'PCA':
-            pca_features = PCA_FEATURES_BY_TYPE.get(data_type, PCA_FEATURES)
-        else:
-            pca_features = PCA_FEATURES  # Not used but keeping for consistency
+        pca_features = PCA_FEATURES_BY_TYPE.get(data_type, PCA_FEATURES)
             
         for fold in FOLDS:
-            # Construct file paths based on model type and feature selection
-            if model_type == 'RF':
-                if feature_selection == 'CFS':
-                    file_path = os.path.join(
-                        BASE_DIR, 
-                        data_type, 
-                        'CFS', 
-                        f'fold{fold}', 
-                        f'threshold_{CFS_THRESHOLD}', 
-                        f'classification_report_{CFS_FEATURES}_features_SMOTE_GRIDSEARCHFalse.txt'
-                    )
-                else:  # PCA
-                    file_path = os.path.join(
-                        BASE_DIR, 
-                        data_type, 
-                        f'PCA_{PCA_COMPONENT}', 
-                        f'fold{fold}', 
-                        f'features_{pca_features}', 
-                        f'classification_report_{pca_features}_features_SMOTE_GRIDSEARCHFalse.txt'
-                    )
-                    # Check for the PCA prefix version of the file
-                    if not os.path.exists(file_path):
-                        file_path = os.path.join(
-                            BASE_DIR, 
-                            data_type, 
-                            f'PCA_{PCA_COMPONENT}', 
-                            f'fold{fold}', 
-                            f'features_{pca_features}', 
-                            f'PCA_classification_report_{pca_features}_features_SMOTE_GRIDSEARCHFalse.txt'
-                        )
-            else:  # XGBoost
-                if feature_selection == 'CFS':
-                    file_path = os.path.join(
-                        BASE_DIR, 
-                        data_type, 
-                        'xgboost',
-                        'CFS', 
-                        f'fold{fold}', 
-                        f'threshold_{CFS_THRESHOLD}', 
-                        f'classification_report_CFS_{CFS_FEATURES}_features_SMOTE_GRIDSEARCHFalse.txt'
-                    )
-                else:  # PCA
-                    file_path = os.path.join(
-                        BASE_DIR, 
-                        data_type, 
-                        'xgboost',
-                        f'PCA_{PCA_COMPONENT}', 
-                        f'fold{fold}', 
-                        f'features_{pca_features}', 
-                        f'classification_report_{pca_features}_features_SMOTE_GRIDSEARCHFalse.txt'
-                    )
-                    # Check for the PCA prefix version of the file
-                    if not os.path.exists(file_path):
-                        file_path = os.path.join(
-                            BASE_DIR, 
-                            data_type, 
-                            'xgboost',
-                            f'PCA_{PCA_COMPONENT}', 
-                            f'fold{fold}', 
-                            f'features_{pca_features}', 
-                            f'PCA_classification_report_{pca_features}_features_SMOTE_GRIDSEARCHFalse.txt'
-                        )
+            # Construct file path for XGBoost-PCA
+            file_path = os.path.join(
+                BASE_DIR, 
+                data_type, 
+                'xgboost',
+                f'PCA_{PCA_COMPONENT}', 
+                f'fold{fold}', 
+                f'features_{pca_features}', 
+                f'classification_report_{pca_features}_features_SMOTE_GRIDSEARCHFalse.txt'
+            )
+            
+            # Check for the PCA prefix version of the file
+            if not os.path.exists(file_path):
+                file_path = os.path.join(
+                    BASE_DIR, 
+                    data_type, 
+                    'xgboost',
+                    f'PCA_{PCA_COMPONENT}', 
+                    f'fold{fold}', 
+                    f'features_{pca_features}', 
+                    f'PCA_classification_report_{pca_features}_features_SMOTE_GRIDSEARCHFalse.txt'
+                )
             
             # Process the file if it exists
             if os.path.exists(file_path):
                 print(f"Processing: {file_path}")
                 # Parse the classification report to extract metrics
-                metrics, subject_preds = parse_classification_report(file_path)
+                metrics = parse_classification_report(file_path)
                 
                 # Add data type and fold information
                 metrics['data_type'] = data_type
                 metrics['fold'] = fold
-                metrics['model_type'] = model_type
-                metrics['feature_selection'] = feature_selection
-                metrics['model'] = f"{model_type}_{feature_selection}"
+                metrics['model'] = 'xgboost_PCA'
                 metrics['file_path'] = file_path  # Store the file path for debugging
-                
-                # Store subject-level predictions
-                if subject_preds:
-                    config_key = f"{data_type}_{model_type}_{feature_selection}"
-                    if config_key not in subject_results:
-                        subject_results[config_key] = {}
-                    
-                    subject_results[config_key][fold] = subject_preds
                 
                 results.append(metrics)
             else:
@@ -290,7 +187,7 @@ def collect_model_results(model_type='RF', feature_selection='CFS'):
     df = pd.DataFrame(results)
     
     # Print summary of collected data
-    print(f"\nCollected {len(df)} results for {model_type}_{feature_selection}")
+    print(f"\nCollected {len(df)} results for XGBoost-PCA model")
     if not df.empty:
         # Check how many files had subject metrics (if that column exists)
         if 'num_subjects' in df.columns:
@@ -303,353 +200,466 @@ def collect_model_results(model_type='RF', feature_selection='CFS'):
         metrics_cols = [col for col in ['accuracy', 'f1', 'precision', 'recall', 'auc'] if col in df.columns]
         if metrics_cols:
             summary = df.groupby('data_type')[metrics_cols].mean().round(3)
-            print("\nAverage subject-level metrics by data type:")
+            print("\nAverage subject-level metrics by data type for XGBoost-PCA:")
             print(summary)
         else:
             print("No metric columns found in the data")
     
-    return df, subject_results
+    return df
 
-def prepare_subject_level_data(all_subject_results):
+def perform_statistical_analysis(results_df):
     """
-    Prepare data for subject-level paired analysis
+    Perform statistical analysis on fold-level results to compare data types
     """
-    # Reorganize subject-level data for paired analysis
-    subject_paired_data = {}
+    if results_df.empty:
+        print("No results data available for analysis")
+        return
     
-    # Identify all unique subjects across all configurations
-    all_subjects = set()
-    for config, fold_data in all_subject_results.items():
-        for fold, subjects in fold_data.items():
-            all_subjects.update(subjects.keys())
+    print("\n===== STATISTICAL ANALYSIS OF XGBOOST-PCA ACROSS DATA TYPES =====")
     
-    print(f"Found {len(all_subjects)} unique subjects across all configurations")
+    # Check which metrics are available
+    metrics = [col for col in ['accuracy', 'f1', 'precision', 'recall', 'auc'] if col in results_df.columns]
     
-    # For each subject, collect the outcomes from different configurations
-    for subject in all_subjects:
-        subject_paired_data[subject] = {}
+    # 1. One-way ANOVA to test if there are significant differences between data types
+    anova_results = []
+    
+    for metric in metrics:
+        # Prepare data for ANOVA
+        data_by_type = [results_df[results_df['data_type'] == dt][metric].dropna().values for dt in DATA_TYPES]
+        data_by_type = [d for d in data_by_type if len(d) > 0]  # Filter out empty arrays
         
-        for config, fold_data in all_subject_results.items():
-            for fold, subjects in fold_data.items():
-                if subject in subjects:
-                    # Extract data type and model info from config
-                    data_type, model_type, feature_selection = config.split('_', 2)
-                    
-                    # Store the prediction result for this subject under this configuration
-                    if data_type not in subject_paired_data[subject]:
-                        subject_paired_data[subject][data_type] = {}
-                    
-                    model_key = f"{model_type}_{feature_selection}"
-                    if model_key not in subject_paired_data[subject][data_type]:
-                        subject_paired_data[subject][data_type][model_key] = {}
-                    
-                    subject_paired_data[subject][data_type][model_key][fold] = subjects[subject]
-    
-    return subject_paired_data
-
-def perform_subject_paired_ttests(subject_paired_data):
-    """
-    Perform truly paired t-tests at the subject level
-    """
-    print("\n===== SUBJECT-LEVEL PAIRED T-TESTS =====")
-    
-    results = []
-    
-    # 1. Compare data types (for each model, using the same subjects)
-    print("\nComparing Data Types (Paired Subject Analysis):")
-    
-    # Get all subjects with predictions across multiple data types
-    for subject, data_types in subject_paired_data.items():
-        if len(data_types) < 2:
-            continue  # Skip subjects with only one data type
-            
-        # Get all pairs of data types for this subject
-        for (type1, type1_models), (type2, type2_models) in combinations(data_types.items(), 2):
-            # Find common models between these data types
-            common_models = set(type1_models.keys()) & set(type2_models.keys())
-            
-            for model in common_models:
-                # Find common folds
-                common_folds = set(type1_models[model].keys()) & set(type2_models[model].keys())
+        if len(data_by_type) >= 2:  # Need at least 2 groups for ANOVA
+            try:
+                # Perform one-way ANOVA
+                f_stat, p_value = stats.f_oneway(*data_by_type)
                 
-                # Check the correctness for each fold
-                for fold in common_folds:
-                    type1_correct = 1 if type1_models[model][fold]['correct'] else 0
-                    type2_correct = 1 if type2_models[model][fold]['correct'] else 0
+                # Calculate effect size (eta-squared)
+                # Sum of squares between groups / total sum of squares
+                # Flatten all data
+                all_data = np.concatenate(data_by_type)
+                
+                # Grand mean
+                grand_mean = np.mean(all_data)
+                
+                # Sum of squares between groups
+                ss_between = sum(len(group) * (np.mean(group) - grand_mean)**2 for group in data_by_type)
+                
+                # Total sum of squares
+                ss_total = sum((x - grand_mean)**2 for x in all_data)
+                
+                # Eta-squared
+                eta_squared = ss_between / ss_total if ss_total != 0 else 0
+                
+                result = {
+                    'metric': metric,
+                    'f_statistic': f_stat,
+                    'p_value': p_value,
+                    'significant': p_value < 0.05,
+                    'effect_size': eta_squared
+                }
+                
+                anova_results.append(result)
+                
+                # Print result
+                print(f"\nANOVA for {metric.upper()}:")
+                print(f"F({len(data_by_type)-1}, {len(all_data)-len(data_by_type)}) = {f_stat:.4f}, p = {p_value:.4f}, η² = {eta_squared:.4f}")
+                if p_value < 0.05:
+                    print("Significant differences found between data types")
+                else:
+                    print("No significant differences between data types")
+                
+                # If significant, perform post-hoc tests
+                if p_value < 0.05:
+                    print("\nPost-hoc pairwise t-tests with Bonferroni correction:")
                     
-                    # Store this paired observation
-                    results.append({
-                        'subject': subject,
-                        'comparison': 'data_type',
-                        'group1': type1,
-                        'group2': type2,
-                        'model': model,
-                        'fold': fold,
-                        'group1_correct': type1_correct,
-                        'group2_correct': type2_correct,
-                        'difference': type1_correct - type2_correct
-                    })
-    
-    # Convert to DataFrame
-    paired_df = pd.DataFrame(results)
-    
-    # Perform paired t-tests on the differences
-    if not paired_df.empty:
-        # Group the data by the comparison parameters
-        grouped = paired_df.groupby(['comparison', 'group1', 'group2', 'model'])
-        
-        # Perform t-test for each group
-        ttest_results = []
-        
-        for name, group in grouped:
-            # Get the differences for this comparison
-            differences = group['difference']
-            
-            # Perform a 1-sample t-test on the differences (paired test)
-            t_stat, p_value = stats.ttest_1samp(differences, 0)
-            
-            # Calculate effect size (Cohen's d for paired samples)
-            effect_size = differences.mean() / (differences.std() if differences.std() > 0 else 1)
-            
-            result = {
-                'comparison': name[0],
-                'group1': name[1],
-                'group2': name[2],
-                'model': name[3],
-                't_statistic': t_stat,
-                'p_value': p_value,
-                'significant': p_value < 0.05,
-                'effect_size': effect_size,
-                'mean_diff': differences.mean(),
-                'std_diff': differences.std(),
-                'n_subjects': len(differences)
-            }
-            
-            ttest_results.append(result)
-            
-            # Print the result
-            sig_indicator = "***" if p_value < 0.001 else "**" if p_value < 0.01 else "*" if p_value < 0.05 else "ns"
-            print(f"Data Type: {name[1]} vs {name[2]} (Model: {name[3]}): t={t_stat:.4f}, p={p_value:.4f} {sig_indicator}, d={effect_size:.4f}, mean_diff={differences.mean():.4f}, n={len(differences)}")
-        
-        # Convert to DataFrame and save
-        ttest_results_df = pd.DataFrame(ttest_results)
-        ttest_results_df.to_csv(os.path.join(OUTPUT_DIR, 'subject_paired_ttest_results.csv'), index=False)
-        
-        # Create visualizations
-        create_subject_paired_ttest_visualizations(ttest_results_df, paired_df)
-        
-        return ttest_results_df, paired_df
-    else:
-        print("No paired subject data available for analysis")
-        return None, None
-
-def create_subject_paired_ttest_visualizations(ttest_df, paired_df):
-    """
-    Create visualizations for subject-level paired t-tests
-    """
-    # 1. Create bar chart of mean differences with error bars
-    if not ttest_df.empty:
-        # Create a group variable for plotting
-        ttest_df['comparison_group'] = ttest_df['group1'] + ' vs ' + ttest_df['group2'] + ' (' + ttest_df['model'] + ')'
-        
-        # Sort by absolute mean difference
-        ttest_df = ttest_df.assign(abs_mean_diff=ttest_df['mean_diff'].abs()).sort_values('abs_mean_diff', ascending=False)
-        
-        # Create the plot
-        plt.figure(figsize=(12, 8))
-        ax = sns.barplot(
-            x='comparison_group', 
-            y='mean_diff', 
-            data=ttest_df,
-            capsize=0.2
-        )
-        
-        # Add error bars manually
-        for i, row in ttest_df.iterrows():
-            ax.errorbar(
-                i, row['mean_diff'], 
-                yerr=row['std_diff'] / np.sqrt(row['n_subjects']),  # Standard error
-                fmt='none', color='black', capsize=5
-            )
-        
-        # Add significance asterisks
-        for i, row in ttest_df.iterrows():
-            sig = '***' if row['p_value'] < 0.001 else '**' if row['p_value'] < 0.01 else '*' if row['p_value'] < 0.05 else ''
-            if sig:
-                ax.text(i, row['mean_diff'] + (0.05 if row['mean_diff'] >= 0 else -0.1), 
-                       sig, ha='center', fontsize=12)
-        
-        # Add a horizontal line at y=0
-        plt.axhline(y=0, color='gray', linestyle='--')
-        
-        plt.title('Subject-Level Paired Comparisons - Mean Differences', fontsize=14)
-        plt.ylabel('Mean Difference in Correct Predictions', fontsize=12)
-        plt.xticks(rotation=45, ha='right')
-        plt.grid(axis='y', linestyle='--', alpha=0.7)
-        plt.tight_layout()
-        
-        # Save the figure
-        plt.savefig(os.path.join(OUTPUT_DIR, 'subject_paired_mean_differences.png'), dpi=300)
-        plt.close()
-    
-    # 2. Create heatmap of p-values
-    if not ttest_df.empty:
-        # Get unique models
-        models = ttest_df['model'].unique()
-        
-        for model in models:
-            # Filter for this model
-            model_df = ttest_df[ttest_df['model'] == model]
-            
-            # Get unique data types for this model
-            data_types = sorted(set(model_df['group1']) | set(model_df['group2']))
-            
-            # Create a matrix of p-values
-            p_value_matrix = np.ones((len(data_types), len(data_types)))
-            
-            # Fill in the p-values
-            for i, type1 in enumerate(data_types):
-                for j, type2 in enumerate(data_types):
-                    if i != j:  # Skip the diagonal
-                        # Find the p-value for this comparison
-                        p_values = model_df[
-                            ((model_df['group1'] == type1) & (model_df['group2'] == type2)) |
-                            ((model_df['group1'] == type2) & (model_df['group2'] == type1))
-                        ]['p_value'].values
+                    # Prepare for post-hoc tests
+                    data_type_values = {}
+                    for dt in DATA_TYPES:
+                        values = results_df[results_df['data_type'] == dt][metric].dropna().values
+                        if len(values) > 0:
+                            data_type_values[dt] = values
+                    
+                    # Perform all pairwise t-tests
+                    posthoc_results = []
+                    
+                    for i, type1 in enumerate(data_type_values.keys()):
+                        for j, type2 in enumerate(data_type_values.keys()):
+                            if i < j:  # Only test each pair once
+                                t_stat, p_val = stats.ttest_ind(
+                                    data_type_values[type1], 
+                                    data_type_values[type2],
+                                    equal_var=False  # Welch's t-test (doesn't assume equal variances)
+                                )
+                                
+                                # Calculate Cohen's d effect size
+                                mean1 = np.mean(data_type_values[type1])
+                                mean2 = np.mean(data_type_values[type2])
+                                n1 = len(data_type_values[type1])
+                                n2 = len(data_type_values[type2])
+                                var1 = np.var(data_type_values[type1], ddof=1)
+                                var2 = np.var(data_type_values[type2], ddof=1)
+                                
+                                # Pooled standard deviation
+                                pooled_std = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+                                
+                                # Cohen's d
+                                cohens_d = (mean1 - mean2) / pooled_std if pooled_std != 0 else 0
+                                
+                                posthoc_results.append({
+                                    'group1': type1,
+                                    'group2': type2,
+                                    'metric': metric,
+                                    't_statistic': t_stat,
+                                    'p_value': p_val,
+                                    'bonferroni_p': p_val * len(data_type_values) * (len(data_type_values) - 1) / 2,
+                                    'mean_diff': mean1 - mean2,
+                                    'effect_size': cohens_d
+                                })
+                    
+                    # Apply Bonferroni correction
+                    for result in posthoc_results:
+                        # Mark as significant if Bonferroni-corrected p-value < 0.05
+                        result['significant'] = result['bonferroni_p'] < 0.05
                         
-                        if len(p_values) > 0:
-                            p_value_matrix[i, j] = p_values[0]
-            
-            # Create the heatmap
-            plt.figure(figsize=(8, 6))
-            sns.heatmap(
-                p_value_matrix,
-                annot=True,
-                fmt='.4f',
-                cmap='coolwarm_r',
-                xticklabels=data_types,
-                yticklabels=data_types,
-                vmin=0,
-                vmax=0.1,
-                cbar_kws={'label': 'p-value'}
-            )
-            
-            plt.title(f'Subject-Level Paired P-values ({model})', fontsize=14)
-            plt.tight_layout()
-            
-            # Save the figure
-            plt.savefig(os.path.join(OUTPUT_DIR, f'subject_paired_pvalues_{model}.png'), dpi=300)
-            plt.close()
+                        # Print result
+                        sig_indicator = "***" if result['bonferroni_p'] < 0.001 else "**" if result['bonferroni_p'] < 0.01 else "*" if result['bonferroni_p'] < 0.05 else "ns"
+                        print(f"{result['group1']} vs {result['group2']}: t = {result['t_statistic']:.4f}, p = {result['p_value']:.4f}, corrected p = {result['bonferroni_p']:.4f} {sig_indicator}, d = {result['effect_size']:.4f}, diff = {result['mean_diff']:.4f}")
+                    
+                    # Save post-hoc results
+                    posthoc_df = pd.DataFrame(posthoc_results)
+                    posthoc_df.to_csv(os.path.join(OUTPUT_DIR, f'xgboost_pca_posthoc_{metric}.csv'), index=False)
+                    
+                    # Create visualization of post-hoc results
+                    create_posthoc_visualizations(posthoc_df, metric)
+                    
+            except Exception as e:
+                print(f"Error performing ANOVA for {metric}: {str(e)}")
+                traceback.print_exc()
+        else:
+            print(f"\nInsufficient data for ANOVA on {metric.upper()}")
     
-    # 3. Create violin plots of the paired differences
-    if not paired_df.empty:
-        # Create a composite group variable
-        paired_df['comparison_group'] = paired_df['group1'] + ' vs ' + paired_df['group2'] + ' (' + paired_df['model'] + ')'
+    # Save ANOVA results
+    if anova_results:
+        anova_df = pd.DataFrame(anova_results)
+        anova_df.to_csv(os.path.join(OUTPUT_DIR, 'xgboost_pca_anova_results.csv'), index=False)
         
-        # Sort the data
-        group_order = paired_df.groupby('comparison_group')['difference'].mean().abs().sort_values(ascending=False).index
+        # Create visualization of ANOVA results
+        create_anova_visualizations(anova_df)
+    
+    # 2. Create a summary table and box plots
+    create_summary_visualizations(results_df, metrics)
+
+def create_posthoc_visualizations(posthoc_df, metric):
+    """
+    Create visualizations for post-hoc test results
+    """
+    if posthoc_df.empty:
+        return
+    
+    # 1. Create heatmap of p-values
+    plt.figure(figsize=(8, 6))
+    
+    # Get unique data types
+    data_types = sorted(set(posthoc_df['group1']) | set(posthoc_df['group2']))
+    
+    # Create a matrix of p-values
+    p_matrix = np.ones((len(data_types), len(data_types)))
+    
+    # Fill in the p-values (using Bonferroni-corrected p-values)
+    for _, row in posthoc_df.iterrows():
+        i = data_types.index(row['group1'])
+        j = data_types.index(row['group2'])
+        p_matrix[i, j] = row['bonferroni_p']
+        p_matrix[j, i] = row['bonferroni_p']  # Make symmetric
+    
+    # Set diagonal to 1.0 (same group)
+    np.fill_diagonal(p_matrix, 1.0)
+    
+    # Create the heatmap
+    sns.heatmap(
+        p_matrix,
+        annot=True,
+        fmt='.4f',
+        cmap='coolwarm_r',
+        xticklabels=data_types,
+        yticklabels=data_types,
+        vmin=0,
+        vmax=0.1,
+        cbar_kws={'label': 'Bonferroni-corrected p-value'}
+    )
+    
+    plt.title(f'XGBoost-PCA: Post-hoc Test P-values for {metric.upper()}', fontsize=14)
+    plt.tight_layout()
+    
+    # Save the figure
+    plt.savefig(os.path.join(OUTPUT_DIR, f'xgboost_pca_posthoc_pvalues_{metric}.png'), dpi=300)
+    plt.close()
+    
+    # 2. Create heatmap of effect sizes
+    plt.figure(figsize=(8, 6))
+    
+    # Create a matrix of effect sizes
+    d_matrix = np.zeros((len(data_types), len(data_types)))
+    
+    # Fill in the effect sizes
+    for _, row in posthoc_df.iterrows():
+        i = data_types.index(row['group1'])
+        j = data_types.index(row['group2'])
+        d_matrix[i, j] = row['effect_size']
+        d_matrix[j, i] = -row['effect_size']  # Asymmetric (effect of group1 - group2)
+    
+    # Create the heatmap
+    sns.heatmap(
+        d_matrix,
+        annot=True,
+        fmt='.4f',
+        cmap='PiYG',
+        xticklabels=data_types,
+        yticklabels=data_types,
+        center=0,
+        cbar_kws={'label': 'Effect Size (Cohen\'s d)'}
+    )
+    
+    plt.title(f'XGBoost-PCA: Post-hoc Test Effect Sizes for {metric.upper()}', fontsize=14)
+    plt.tight_layout()
+    
+    # Save the figure
+    plt.savefig(os.path.join(OUTPUT_DIR, f'xgboost_pca_posthoc_effectsizes_{metric}.png'), dpi=300)
+    plt.close()
+    
+    # 3. Create bar plot of mean differences
+    plt.figure(figsize=(10, 6))
+    
+    # Create a combined group label
+    posthoc_df['comparison'] = posthoc_df['group1'] + ' vs ' + posthoc_df['group2']
+    
+    # Sort by absolute mean difference
+    posthoc_df = posthoc_df.assign(abs_mean_diff=posthoc_df['mean_diff'].abs()).sort_values('abs_mean_diff', ascending=False)
+    
+    # Create the bar chart
+    ax = sns.barplot(
+        x='comparison',
+        y='mean_diff',
+        data=posthoc_df
+    )
+    
+    # Add significance asterisks
+    for i, row in posthoc_df.reset_index().iterrows():
+        sig = '***' if row['bonferroni_p'] < 0.001 else '**' if row['bonferroni_p'] < 0.01 else '*' if row['bonferroni_p'] < 0.05 else ''
+        if sig:
+            ax.text(i, row['mean_diff'] + (0.02 if row['mean_diff'] >= 0 else -0.04), 
+                   sig, ha='center', fontsize=12)
+    
+    # Add a horizontal line at zero
+    plt.axhline(y=0, color='gray', linestyle='--')
+    
+    plt.title(f'XGBoost-PCA: Mean Differences in {metric.upper()} Between Data Types', fontsize=14)
+    plt.ylabel(f'Mean Difference in {metric.upper()}', fontsize=12)
+    plt.xticks(rotation=45, ha='right')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    
+    # Save the figure
+    plt.savefig(os.path.join(OUTPUT_DIR, f'xgboost_pca_posthoc_meandiffs_{metric}.png'), dpi=300)
+    plt.close()
+
+def create_anova_visualizations(anova_df):
+    """
+    Create visualizations for ANOVA results
+    """
+    if anova_df.empty:
+        return
+    
+    # Create a bar chart of F-statistics
+    plt.figure(figsize=(10, 6))
+    
+    # Sort by F-statistic
+    anova_df = anova_df.sort_values('f_statistic', ascending=False)
+    
+    # Create the bar chart
+    ax = sns.barplot(
+        x='metric',
+        y='f_statistic',
+        data=anova_df
+    )
+    
+    # Add significance asterisks
+    for i, row in anova_df.reset_index().iterrows():
+        sig = '***' if row['p_value'] < 0.001 else '**' if row['p_value'] < 0.01 else '*' if row['p_value'] < 0.05 else ''
+        if sig:
+            ax.text(i, row['f_statistic'] + 0.5, 
+                   sig, ha='center', fontsize=12)
+    
+    plt.title('XGBoost-PCA: ANOVA F-Statistics by Metric', fontsize=14)
+    plt.ylabel('F-Statistic', fontsize=12)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    
+    # Save the figure
+    plt.savefig(os.path.join(OUTPUT_DIR, 'xgboost_pca_anova_fstatistics.png'), dpi=300)
+    plt.close()
+    
+    # Create a bar chart of effect sizes
+    plt.figure(figsize=(10, 6))
+    
+    # Sort by effect size
+    anova_df = anova_df.sort_values('effect_size', ascending=False)
+    
+    # Create the bar chart
+    ax = sns.barplot(
+        x='metric',
+        y='effect_size',
+        data=anova_df
+    )
+    
+    # Add significance asterisks
+    for i, row in anova_df.reset_index().iterrows():
+        sig = '***' if row['p_value'] < 0.001 else '**' if row['p_value'] < 0.01 else '*' if row['p_value'] < 0.05 else ''
+        if sig:
+            ax.text(i, row['effect_size'] + 0.02, 
+                   sig, ha='center', fontsize=12)
+    
+    plt.title('XGBoost-PCA: ANOVA Effect Sizes by Metric', fontsize=14)
+    plt.ylabel('Effect Size (η²)', fontsize=12)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    
+    # Save the figure
+    plt.savefig(os.path.join(OUTPUT_DIR, 'xgboost_pca_anova_effectsizes.png'), dpi=300)
+    plt.close()
+
+def create_summary_visualizations(results_df, metrics):
+    """
+    Create summary visualizations of the results
+    """
+    if results_df.empty:
+        return
+    
+    # 1. Create box plots for each metric
+    for metric in metrics:
+        plt.figure(figsize=(10, 6))
         
-        # Create the plot
-        plt.figure(figsize=(12, 8))
-        ax = sns.violinplot(
-            x='comparison_group',
-            y='difference',
-            data=paired_df,
-            order=group_order,
-            inner='box'
+        # Create the box plot
+        ax = sns.boxplot(
+            x='data_type',
+            y=metric,
+            data=results_df
         )
         
-        # Add a horizontal line at y=0
-        plt.axhline(y=0, color='gray', linestyle='--')
+        # Add individual data points
+        sns.stripplot(
+            x='data_type',
+            y=metric,
+            data=results_df,
+            color='black',
+            alpha=0.5,
+            jitter=True
+        )
         
-        plt.title('Distribution of Subject-Level Paired Differences', fontsize=14)
-        plt.ylabel('Difference in Correct Predictions (Group1 - Group2)', fontsize=12)
-        plt.xticks(rotation=45, ha='right')
+        # Calculate and display means
+        means = results_df.groupby('data_type')[metric].mean()
+        for i, data_type in enumerate(means.index):
+            ax.text(i, means[data_type] + 0.02, 
+                   f'{means[data_type]:.3f}', ha='center', fontsize=10)
+        
+        plt.title(f'XGBoost-PCA: {metric.upper()} by Data Type', fontsize=14)
+        plt.ylabel(metric.upper(), fontsize=12)
         plt.grid(axis='y', linestyle='--', alpha=0.7)
         plt.tight_layout()
         
         # Save the figure
-        plt.savefig(os.path.join(OUTPUT_DIR, 'subject_paired_difference_distributions.png'), dpi=300)
+        plt.savefig(os.path.join(OUTPUT_DIR, f'xgboost_pca_boxplot_{metric}.png'), dpi=300)
         plt.close()
-
-def cohen_d(x, y):
-    """
-    Calculate Cohen's d effect size between two groups
     
-    Parameters:
-    x, y : array-like
-        The samples to compute the effect size between
+    # 2. Create a combined visualization of all metrics
+    plt.figure(figsize=(15, 10))
+    
+    # Create subplots for each metric
+    for i, metric in enumerate(metrics):
+        plt.subplot(2, 3, i+1)
         
-    Returns:
-    d : float
-        Cohen's d effect size
-    """
-    nx = len(x)
-    ny = len(y)
+        # Create the bar plot
+        ax = sns.barplot(
+            x='data_type',
+            y=metric,
+            data=results_df
+        )
+        
+        # Add individual data points
+        sns.stripplot(
+            x='data_type',
+            y=metric,
+            data=results_df,
+            color='black',
+            alpha=0.5,
+            jitter=True
+        )
+        
+        # Calculate and display means
+        means = results_df.groupby('data_type')[metric].mean()
+        for j, data_type in enumerate(means.index):
+            ax.text(j, means[data_type] + 0.02, 
+                   f'{means[data_type]:.3f}', ha='center', fontsize=9)
+        
+        plt.title(metric.upper(), fontsize=12)
+        plt.grid(axis='y', linestyle='--', alpha=0.7)
     
-    # Calculate means
-    mean_x = np.mean(x)
-    mean_y = np.mean(y)
+    plt.suptitle('XGBoost-PCA: Performance Metrics by Data Type', fontsize=16)
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
     
-    # Calculate standard deviations
-    var_x = np.var(x, ddof=1)
-    var_y = np.var(y, ddof=1)
+    # Save the figure
+    plt.savefig(os.path.join(OUTPUT_DIR, 'xgboost_pca_combined_metrics.png'), dpi=300)
+    plt.close()
     
-    # Calculate pooled standard deviation
-    pooled_std = np.sqrt(((nx - 1) * var_x + (ny - 1) * var_y) / (nx + ny - 2))
+    # 3. Create a heatmap of mean metrics
+    plt.figure(figsize=(10, 8))
     
-    # Calculate Cohen's d
-    d = (mean_x - mean_y) / pooled_std if pooled_std != 0 else 0
+    # Calculate mean metrics by data type
+    means = results_df.groupby('data_type')[metrics].mean()
     
-    return d
+    # Create the heatmap
+    sns.heatmap(
+        means,
+        annot=True,
+        fmt='.3f',
+        cmap='viridis',
+        linewidths=.5,
+        cbar_kws={'label': 'Value'}
+    )
+    
+    plt.title('XGBoost-PCA: Mean Performance Metrics by Data Type', fontsize=14)
+    plt.tight_layout()
+    
+    # Save the figure
+    plt.savefig(os.path.join(OUTPUT_DIR, 'xgboost_pca_metrics_heatmap.png'), dpi=300)
+    plt.close()
 
 def main():
-    # Initialize a dictionary to store all subject-level results
-    all_subject_results = {}
-    
-    # Collect results for all model types
-    print("Collecting RF-CFS results...")
-    rf_cfs_results, rf_cfs_subject_results = collect_model_results('RF', 'CFS')
-    all_subject_results.update(rf_cfs_subject_results)
-    
-    print("Collecting RF-PCA results...")
-    rf_pca_results, rf_pca_subject_results = collect_model_results('RF', 'PCA')
-    all_subject_results.update(rf_pca_subject_results)
-    
-    print("Collecting XGBoost-CFS results...")
-    xgb_cfs_results, xgb_cfs_subject_results = collect_model_results('xgboost', 'CFS')
-    all_subject_results.update(xgb_cfs_subject_results)
-    
+    """
+    Main function to analyze XGBoost-PCA model across data types
+    """
     print("Collecting XGBoost-PCA results...")
-    xgb_pca_results, xgb_pca_subject_results = collect_model_results('xgboost', 'PCA')
-    all_subject_results.update(xgb_pca_subject_results)
+    xgb_pca_results = collect_xgboost_pca_results()
     
-    # Combine all results
-    all_results = pd.concat([rf_cfs_results, rf_pca_results, xgb_cfs_results, xgb_pca_results])
-    
-    # Check if we have subject-level prediction data
-    if all_subject_results:
-        print("\nPreparing subject-level paired data...")
-        subject_paired_data = prepare_subject_level_data(all_subject_results)
+    # Save results to output directory
+    if not xgb_pca_results.empty:
+        xgb_pca_results.to_csv(os.path.join(OUTPUT_DIR, 'xgboost_pca_results.csv'), index=False)
+        print(f"Saved XGBoost-PCA results with {len(xgb_pca_results)} rows to {OUTPUT_DIR}")
         
-        print("\nPerforming subject-level paired t-tests...")
-        ttest_results, paired_data = perform_subject_paired_ttests(subject_paired_data)
+        # Print summary
+        summary = xgb_pca_results.groupby('data_type').size().reset_index(name='count')
+        print("\nSummary of collected results:")
+        print(summary)
         
-        if ttest_results is not None:
-            # Print summary of significant findings
-            sig_results = ttest_results[ttest_results['significant']]
-            print(f"\nFound {len(sig_results)} significant differences in subject-level paired comparisons")
-            
-            if not sig_results.empty:
-                print("\nSignificant subject-level findings:")
-                for _, row in sig_results.iterrows():
-                    print(f"  {row['group1']} vs {row['group2']} ({row['model']}): p={row['p_value']:.4f}, mean_diff={row['mean_diff']:.4f}")
+        # Also save the summary to the output directory
+        summary.to_csv(os.path.join(OUTPUT_DIR, 'xgboost_pca_summary_count.csv'), index=False)
         
-        print("\nCompleted subject-level paired analysis")
+        # Perform statistical analysis
+        perform_statistical_analysis(xgb_pca_results)
+        
+        print("\nAnalysis complete!")
     else:
-        print("\nNo subject-level prediction data available for paired analysis")
-        print("Falling back to traditional (unpaired) statistical tests...")
-        # You could call your original t-test function here if needed
+        print("\nNo results data available for analysis")
 
 if __name__ == "__main__":
     main()

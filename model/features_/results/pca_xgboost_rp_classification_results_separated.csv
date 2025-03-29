@@ -1,0 +1,84 @@
+Accuracy Table
+Feature Count,Fold 1,Fold 2,Fold 3,Fold 4,Fold 5,Average
+3,N/A,N/A,N/A,N/A,N/A,N/A
+10,N/A,N/A,N/A,N/A,N/A,N/A
+20,N/A,N/A,N/A,N/A,N/A,N/A
+30,N/A,N/A,N/A,N/A,N/A,N/A
+40,N/A,N/A,N/A,N/A,N/A,N/A
+50,N/A,N/A,N/A,N/A,N/A,N/A
+60,N/A,N/A,N/A,N/A,N/A,N/A
+70,N/A,N/A,N/A,N/A,N/A,N/A
+80,N/A,N/A,N/A,N/A,N/A,N/A
+90,N/A,N/A,N/A,N/A,N/A,N/A
+100,N/A,N/A,N/A,N/A,N/A,N/A
+110,N/A,N/A,N/A,N/A,N/A,N/A
+120,N/A,N/A,N/A,N/A,N/A,N/A
+130,N/A,N/A,N/A,N/A,N/A,N/A
+
+F1 Score Table
+Feature Count,Fold 1,Fold 2,Fold 3,Fold 4,Fold 5,Average
+3,N/A,N/A,N/A,N/A,N/A,N/A
+10,N/A,N/A,N/A,N/A,N/A,N/A
+20,N/A,N/A,N/A,N/A,N/A,N/A
+30,N/A,N/A,N/A,N/A,N/A,N/A
+40,N/A,N/A,N/A,N/A,N/A,N/A
+50,N/A,N/A,N/A,N/A,N/A,N/A
+60,N/A,N/A,N/A,N/A,N/A,N/A
+70,N/A,N/A,N/A,N/A,N/A,N/A
+80,N/A,N/A,N/A,N/A,N/A,N/A
+90,N/A,N/A,N/A,N/A,N/A,N/A
+100,N/A,N/A,N/A,N/A,N/A,N/A
+110,N/A,N/A,N/A,N/A,N/A,N/A
+120,N/A,N/A,N/A,N/A,N/A,N/A
+130,N/A,N/A,N/A,N/A,N/A,N/A
+
+Precision Table
+Feature Count,Fold 1,Fold 2,Fold 3,Fold 4,Fold 5,Average
+3,N/A,N/A,N/A,N/A,N/A,N/A
+10,N/A,N/A,N/A,N/A,N/A,N/A
+20,N/A,N/A,N/A,N/A,N/A,N/A
+30,N/A,N/A,N/A,N/A,N/A,N/A
+40,N/A,N/A,N/A,N/A,N/A,N/A
+50,N/A,N/A,N/A,N/A,N/A,N/A
+60,N/A,N/A,N/A,N/A,N/A,N/A
+70,N/A,N/A,N/A,N/A,N/A,N/A
+80,N/A,N/A,N/A,N/A,N/A,N/A
+90,N/A,N/A,N/A,N/A,N/A,N/A
+100,N/A,N/A,N/A,N/A,N/A,N/A
+110,N/A,N/A,N/A,N/A,N/A,N/A
+120,N/A,N/A,N/A,N/A,N/A,N/A
+130,N/A,N/A,N/A,N/A,N/A,N/A
+
+Recall Table
+Feature Count,Fold 1,Fold 2,Fold 3,Fold 4,Fold 5,Average
+3,N/A,N/A,N/A,N/A,N/A,N/A
+10,N/A,N/A,N/A,N/A,N/A,N/A
+20,N/A,N/A,N/A,N/A,N/A,N/A
+30,N/A,N/A,N/A,N/A,N/A,N/A
+40,N/A,N/A,N/A,N/A,N/A,N/A
+50,N/A,N/A,N/A,N/A,N/A,N/A
+60,N/A,N/A,N/A,N/A,N/A,N/A
+70,N/A,N/A,N/A,N/A,N/A,N/A
+80,N/A,N/A,N/A,N/A,N/A,N/A
+90,N/A,N/A,N/A,N/A,N/A,N/A
+100,N/A,N/A,N/A,N/A,N/A,N/A
+110,N/A,N/A,N/A,N/A,N/A,N/A
+120,N/A,N/A,N/A,N/A,N/A,N/A
+130,N/A,N/A,N/A,N/A,N/A,N/A
+
+AUC Table
+Feature Count,Fold 1,Fold 2,Fold 3,Fold 4,Fold 5,Average
+3,N/A,N/A,N/A,N/A,N/A,N/A
+10,N/A,N/A,N/A,N/A,N/A,N/A
+20,N/A,N/A,N/A,N/A,N/A,N/A
+30,N/A,N/A,N/A,N/A,N/A,N/A
+40,N/A,N/A,N/A,N/A,N/A,N/A
+50,N/A,N/A,N/A,N/A,N/A,N/A
+60,N/A,N/A,N/A,N/A,N/A,N/A
+70,N/A,N/A,N/A,N/A,N/A,N/A
+80,N/A,N/A,N/A,N/A,N/A,N/A
+90,N/A,N/A,N/A,N/A,N/A,N/A
+100,N/A,N/A,N/A,N/A,N/A,N/A
+110,N/A,N/A,N/A,N/A,N/A,N/A
+120,N/A,N/A,N/A,N/A,N/A,N/A
+130,N/A,N/A,N/A,N/A,N/A,N/A

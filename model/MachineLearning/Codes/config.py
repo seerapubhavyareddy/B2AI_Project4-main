@@ -7,8 +7,8 @@ CHUNK_LENGTH = TARGET_SAMPLE_RATE * CHUNK_LENGTH_S  # Convert seconds to samples
 
 
 # Data type and paths
-DATA_TYPE = 'rp'  # Options: 'deep', 'reg', 'fimo'
-DATA_TYPES = ['reg', 'fimo', 'rp']
+DATA_TYPE = 'fimo'  # Options: 'deep', 'reg', 'fimo'
+DATA_TYPES = ['reg', 'fimo', 'rp', 'deep']
 MAIN_DATA_DIR = '/home/b/bhavyareddyseerapu/B2AI_Project4-main/model/MachineLearning/Data_PreProcessing'
 MAIN_SAVE_DIR = '/home/b/bhavyareddyseerapu/B2AI_Project4-main/model/features'
 

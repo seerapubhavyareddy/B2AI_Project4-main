@@ -1,8 +1,22 @@
-Test Accuracy: 0.7997847147470398
-F1 Score: 0.7890367760628385
-Precision: 0.7889354579066027
-Recall: 0.7997847147470398
-AUC: 0.7924345721168465
+SUBJECT-LEVEL METRICS
+=====================
+Test Accuracy: 0.8723404255319149
+F1 Score: 0.8632589517384537
+Precision: 0.859371833839919
+Recall: 0.8723404255319149
+AUC: 0.8464285714285714
+
+Number of test subjects: 47
+Number of positive subjects: 7
+Number of negative subjects: 40
+
+CHUNK-LEVEL METRICS (for reference)
+==================================
+Chunk Accuracy: 0.7997847147470398
+Chunk F1 Score: 0.7890367760628385
+Chunk Precision: 0.7889354579066027
+Chunk Recall: 0.7997847147470398
+Chunk AUC: 0.7924345721168465
 
               precision    recall  f1-score   support
 

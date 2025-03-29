@@ -1,0 +1,17 @@
+model,data_type,count
+RF_CFS,deep,5
+RF_CFS,fimo,5
+RF_CFS,reg,5
+RF_CFS,rp,5
+RF_PCA,deep,5
+RF_PCA,fimo,5
+RF_PCA,reg,5
+RF_PCA,rp,5
+xgboost_CFS,deep,5
+xgboost_CFS,fimo,5
+xgboost_CFS,reg,5
+xgboost_CFS,rp,5
+xgboost_PCA,deep,5
+xgboost_PCA,fimo,5
+xgboost_PCA,reg,5
+xgboost_PCA,rp,5

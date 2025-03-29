@@ -21,10 +21,10 @@ recording_path	Prediction	Actual
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-42/Patient-42_ses-1_FIMO_Avid_S_chunk2.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-42/Patient-42_ses-1_FIMO_Avid_S_chunk1.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-42/Patient-42_ses-1_FIMO_Avid_S_chunk5.wav	1	1
-/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-42/Patient-42_ses-1_FIMO_iPad_S_chunk3.wav	0	1
-/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-42/Patient-42_ses-1_FIMO_iPad_S_chunk7.wav	1	1
+/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-42/Patient-42_ses-1_FIMO_iPad_S_chunk3.wav	1	1
+/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-42/Patient-42_ses-1_FIMO_iPad_S_chunk7.wav	0	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-42/Patient-42_ses-1_FIMO_iPad_S_chunk1.wav	0	1
-/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-42/Patient-42_ses-1_FIMO_iPad_S_chunk4.wav	0	1
+/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-42/Patient-42_ses-1_FIMO_iPad_S_chunk4.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-42/Patient-42_ses-1_FIMO_Avid_S_chunk4.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-42/Patient-42_ses-1_FIMO_Avid_S_chunk6.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-42/Patient-42_ses-1_FIMO_Avid_S_chunk7.wav	1	1
@@ -40,11 +40,11 @@ recording_path	Prediction	Actual
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-33/Patient-33_ses-1_FIMO_iPad_S_chunk2.wav	0	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-33/Patient-33_ses-1_FIMO_Avid_S_chunk1.wav	0	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-33/Patient-33_ses-1_FIMO_Avid_S_chunk11.wav	0	1
-/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-33/Patient-33_ses-1_FIMO_Avid_S_chunk6.wav	0	1
+/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-33/Patient-33_ses-1_FIMO_Avid_S_chunk6.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-33/Patient-33_ses-1_FIMO_Avid_S_chunk3.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-33/Patient-33_ses-1_FIMO_iPad_S_chunk9.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-33/Patient-33_ses-1_FIMO_iPad_S_chunk3.wav	0	1
-/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-33/Patient-33_ses-1_FIMO_Avid_S_chunk5.wav	0	1
+/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-33/Patient-33_ses-1_FIMO_Avid_S_chunk5.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-33/Patient-33_ses-1_FIMO_Avid_S_chunk8.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-33/Patient-33_ses-1_FIMO_iPad_S_chunk8.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-33/Patient-33_ses-1_FIMO_iPad_S_chunk4.wav	1	1
@@ -69,8 +69,8 @@ recording_path	Prediction	Actual
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-34/Patient-34_ses-1_FIMO_iPad_S_chunk2.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-34/Patient-34_ses-1_FIMO_iPad_S_chunk1.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-34/Patient-34_ses-1_FIMO_Avid_S_chunk2.wav	0	1
-/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-34/Patient-34_ses-1_FIMO_iPad_S_chunk3.wav	0	1
-/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-34/Patient-34_ses-1_FIMO_Avid_S_chunk1.wav	0	1
+/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-34/Patient-34_ses-1_FIMO_iPad_S_chunk3.wav	1	1
+/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-34/Patient-34_ses-1_FIMO_Avid_S_chunk1.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-39/Patient-39_ses-1_FIMO_iPad_S_chunk4.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-39/Patient-39_ses-1_FIMO_Avid_S_chunk1.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-39/Patient-39_ses-1_FIMO_Avid_S_chunk5.wav	1	1
@@ -95,7 +95,7 @@ recording_path	Prediction	Actual
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Control-17C/Control-17C_ses-1_FIMO_Avid_NS_chunk1.wav	0	0
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Control-17C/Control-17C_ses-1_FIMO_Avid_NS_chunk3.wav	0	0
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Control-17C/Control-17C_ses-1_FIMO_iPad_NS_chunk5.wav	0	0
-/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-23/Patient-23_ses-1_FIMO_iPad_S_chunk6.wav	1	1
+/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-23/Patient-23_ses-1_FIMO_iPad_S_chunk6.wav	0	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-23/Patient-23_ses-1_FIMO_Avid_S_chunk5.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-23/Patient-23_ses-1_FIMO_iPad_S_chunk2.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-23/Patient-23_ses-1_FIMO_iPad_S_chunk7.wav	1	1
@@ -106,7 +106,7 @@ recording_path	Prediction	Actual
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-23/Patient-23_ses-1_FIMO_iPad_S_chunk5.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-23/Patient-23_ses-1_FIMO_Avid_S_chunk6.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-23/Patient-23_ses-1_FIMO_iPad_S_chunk1.wav	1	1
-/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-23/Patient-23_ses-1_FIMO_Avid_S_chunk2.wav	0	1
+/home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-23/Patient-23_ses-1_FIMO_Avid_S_chunk2.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-23/Patient-23_ses-1_FIMO_iPad_S_chunk4.wav	1	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_stridor/Patient-23/Patient-23_ses-1_FIMO_Avid_S_chunk7.wav	0	1
 /home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-2de86669-cc1f-45ef-9d31-a7eabd68f247/sub-2de86669-cc1f-45ef-9d31-a7eabd68f247_ses-2DC96B8A-2272-447C-A005-C11C8CA97571_FIMO2_Avid_NS_chunk1.wav	0	0
@@ -338,7 +338,7 @@ recording_path	Prediction	Actual
 /home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-fa6befa4-dece-4987-8612-67572aa6234b/sub-fa6befa4-dece-4987-8612-67572aa6234b_ses-4A558493-50BC-497F-8EE2-E18664F18F1E_FIMO1_Avid_NS_chunk5.wav	0	0
 /home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-fa6befa4-dece-4987-8612-67572aa6234b/sub-fa6befa4-dece-4987-8612-67572aa6234b_ses-4A558493-50BC-497F-8EE2-E18664F18F1E_FIMO2_Avid_NS_chunk2.wav	0	0
 /home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-fa6befa4-dece-4987-8612-67572aa6234b/sub-fa6befa4-dece-4987-8612-67572aa6234b_ses-4A558493-50BC-497F-8EE2-E18664F18F1E_FIMO2_Avid_NS_chunk1.wav	0	0
-/home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-fa6befa4-dece-4987-8612-67572aa6234b/sub-fa6befa4-dece-4987-8612-67572aa6234b_ses-4A558493-50BC-497F-8EE2-E18664F18F1E_FIMO2_Avid_NS_chunk3.wav	0	0
+/home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-fa6befa4-dece-4987-8612-67572aa6234b/sub-fa6befa4-dece-4987-8612-67572aa6234b_ses-4A558493-50BC-497F-8EE2-E18664F18F1E_FIMO2_Avid_NS_chunk3.wav	1	0
 /home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-fa6befa4-dece-4987-8612-67572aa6234b/sub-fa6befa4-dece-4987-8612-67572aa6234b_ses-4A558493-50BC-497F-8EE2-E18664F18F1E_FIMO1_Avid_NS_chunk3.wav	0	0
 /home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-fa6befa4-dece-4987-8612-67572aa6234b/sub-fa6befa4-dece-4987-8612-67572aa6234b_ses-4A558493-50BC-497F-8EE2-E18664F18F1E_FIMO1_Avid_NS_chunk4.wav	0	0
 /home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-fa6befa4-dece-4987-8612-67572aa6234b/sub-fa6befa4-dece-4987-8612-67572aa6234b_ses-4A558493-50BC-497F-8EE2-E18664F18F1E_FIMO1_Avid_NS_chunk2.wav	0	0
@@ -354,7 +354,7 @@ recording_path	Prediction	Actual
 /home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-58eb0e00-21cc-4f94-a415-b81e4856d297/sub-58eb0e00-21cc-4f94-a415-b81e4856d297_ses-1DA42932-6935-4925-B917-139E73400C81_FIMO1_Avid_NS_chunk1.wav	0	0
 /home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-58eb0e00-21cc-4f94-a415-b81e4856d297/sub-58eb0e00-21cc-4f94-a415-b81e4856d297_ses-1DA42932-6935-4925-B917-139E73400C81_FIMO2_Avid_NS_chunk3.wav	0	0
 /home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-58eb0e00-21cc-4f94-a415-b81e4856d297/sub-58eb0e00-21cc-4f94-a415-b81e4856d297_ses-1DA42932-6935-4925-B917-139E73400C81_FIMO1_Avid_NS_chunk2.wav	0	0
-/home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-58eb0e00-21cc-4f94-a415-b81e4856d297/sub-58eb0e00-21cc-4f94-a415-b81e4856d297_ses-1DA42932-6935-4925-B917-139E73400C81_FIMO1_Avid_NS_chunk4.wav	1	0
+/home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-58eb0e00-21cc-4f94-a415-b81e4856d297/sub-58eb0e00-21cc-4f94-a415-b81e4856d297_ses-1DA42932-6935-4925-B917-139E73400C81_FIMO1_Avid_NS_chunk4.wav	0	0
 /home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-b064fa6f-e663-4cba-8a21-6f627d78037b/sub-b064fa6f-e663-4cba-8a21-6f627d78037b_ses-BB4173E8-1D5B-4E6F-B10D-7B4F6E9617C0_FIMO1_Avid_NS_chunk3.wav	0	0
 /home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-b064fa6f-e663-4cba-8a21-6f627d78037b/sub-b064fa6f-e663-4cba-8a21-6f627d78037b_ses-BB4173E8-1D5B-4E6F-B10D-7B4F6E9617C0_FIMO2_Avid_NS_chunk2.wav	0	0
 /home/b/bhavyareddyseerapu/chunk_data/chunk_b2ai/sub-b064fa6f-e663-4cba-8a21-6f627d78037b/sub-b064fa6f-e663-4cba-8a21-6f627d78037b_ses-BB4173E8-1D5B-4E6F-B10D-7B4F6E9617C0_FIMO1_Avid_NS_chunk1.wav	0	0

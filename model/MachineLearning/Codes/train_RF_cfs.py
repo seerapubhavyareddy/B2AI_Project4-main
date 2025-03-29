@@ -71,7 +71,6 @@ def process_fold(data_type, fold, threshold):
     train_path_full = combined_paths[train_indices]
     X_test_full = X_combined[test_indices]
     test_path_full = combined_paths[test_indices]
-    y_train_full = y_train
     y_test_full = y_test
 
     save_base_path = os.path.join(config.MAIN_SAVE_DIR, data_type, 'CFS', 
@@ -107,9 +106,9 @@ def process_fold(data_type, fold, threshold):
 
     if config.OVERSAMPLING == 'SMOTE':
         smote = SMOTE(random_state=random_state, k_neighbors=5)
-        X_train_resampled, y_train_resampled = smote.fit_resample(X_train_selected, y_train_full)
+        X_train_resampled, y_train_resampled = smote.fit_resample(X_train_selected, y_train)
     else:
-        X_train_resampled, y_train_resampled = X_train_selected, y_train_full
+        X_train_resampled, y_train_resampled = X_train_selected, y_train
 
     # Train model
     if config.GridSearch:
@@ -134,36 +133,134 @@ def process_fold(data_type, fold, threshold):
         )
         rf_classifier.fit(X_train_resampled, y_train_resampled)
 
-    y_pred = rf_classifier.predict(X_test_selected)
+    # Get chunk-level predictions and probabilities
+    y_pred_chunks = rf_classifier.predict(X_test_selected)
+    y_prob_chunks = rf_classifier.predict_proba(X_test_selected)[:, 1] if len(np.unique(y_train_resampled)) == 2 else None
+    
+    # Extract subject IDs from paths
+    # Assuming the path format includes subject ID, e.g., "path/to/subject_123/chunk_456.wav"
+    # Modify this pattern extraction according to your actual file naming convention
+    def extract_subject_id(path):
+        # Extract subject ID from path - adjust this according to your naming convention
+        # This is a placeholder implementation
+        parts = os.path.basename(path).split('_')
+        if len(parts) >= 2:
+            return parts[0]  # Assumes first part is subject ID
+        return os.path.basename(path)  # Fallback
 
-    # Calculate metrics
-    accuracy = accuracy_score(y_test_full, y_pred)
-    f1 = f1_score(y_test_full, y_pred, average='weighted')
-    precision = precision_score(y_test_full, y_pred, average='weighted')
-    recall = recall_score(y_test_full, y_pred, average='weighted')
-    auc = roc_auc_score(y_test_full, rf_classifier.predict_proba(X_test_selected)[:, 1]) if len(np.unique(y_test_full)) == 2 else 'N/A'
+    # Group test data by subject
+    subject_ids = [extract_subject_id(path) for path in test_path_full]
+    unique_subjects = np.unique(subject_ids)
+    
+    # Create dictionaries to store subject-level data
+    subject_true = {}
+    subject_pred = {}
+    subject_prob = {}
+    
+    # Aggregate predictions by subject
+    for i, subj_id in enumerate(subject_ids):
+        if subj_id not in subject_true:
+            # Initialize for first occurrence of this subject
+            subject_true[subj_id] = y_test_full[i]
+            subject_pred[subj_id] = []
+            if y_prob_chunks is not None:
+                subject_prob[subj_id] = []
+        
+        # Add predictions for this subject
+        subject_pred[subj_id].append(y_pred_chunks[i])
+        if y_prob_chunks is not None:
+            subject_prob[subj_id].append(y_prob_chunks[i])
+    
+    # Convert to subject-level predictions (majority vote)
+    y_true_subject = np.array([subject_true[subj] for subj in unique_subjects])
+    y_pred_subject = np.array([np.round(np.mean(subject_pred[subj])) for subj in unique_subjects])
+    
+    # For AUC, use average probabilities if available
+    if y_prob_chunks is not None:
+        y_prob_subject = np.array([np.mean(subject_prob[subj]) for subj in unique_subjects])
+    else:
+        y_prob_subject = None
+    
+    # Calculate subject-level metrics
+    accuracy = accuracy_score(y_true_subject, y_pred_subject)
+    f1 = f1_score(y_true_subject, y_pred_subject, average='weighted')
+    precision = precision_score(y_true_subject, y_pred_subject, average='weighted')
+    recall = recall_score(y_true_subject, y_pred_subject, average='weighted')
+    
+    if y_prob_subject is not None and len(np.unique(y_true_subject)) == 2:
+        auc = roc_auc_score(y_true_subject, y_prob_subject)
+    else:
+        auc = 'N/A'
 
     # Save results
     model_filename = f'rf_model_{config.MAX_FEATURES}_features_{config.OVERSAMPLING}_GRIDSEARCH{config.GridSearch}.pkl'
     joblib.dump(rf_classifier, os.path.join(save_base_path, model_filename))
 
     report_filename = f'classification_report_{config.MAX_FEATURES}_features_{config.OVERSAMPLING}_GRIDSEARCH{config.GridSearch}.txt'
+    
+    # Save both chunk-level and subject-level results
     with open(os.path.join(save_base_path, report_filename), 'w') as f:
+        f.write("SUBJECT-LEVEL METRICS\n")
+        f.write("=====================\n")
         f.write(f'Test Accuracy: {accuracy}\n')
         f.write(f'F1 Score: {f1}\n')
         f.write(f'Precision: {precision}\n')
         f.write(f'Recall: {recall}\n')
         f.write(f'AUC: {auc}\n\n')
-        f.write(classification_report(y_test_full, y_pred))
-
-    write_test_results(y_test_full, y_pred, test_path_full, save_base_path)
+        
+        f.write(f'Number of test subjects: {len(unique_subjects)}\n')
+        f.write(f'Number of positive subjects: {np.sum(y_true_subject)}\n')
+        f.write(f'Number of negative subjects: {len(y_true_subject) - np.sum(y_true_subject)}\n\n')
+        
+        f.write("CHUNK-LEVEL METRICS (for reference)\n")
+        f.write("==================================\n")
+        chunk_accuracy = accuracy_score(y_test_full, y_pred_chunks)
+        chunk_f1 = f1_score(y_test_full, y_pred_chunks, average='weighted')
+        chunk_precision = precision_score(y_test_full, y_pred_chunks, average='weighted')
+        chunk_recall = recall_score(y_test_full, y_pred_chunks, average='weighted')
+        chunk_auc = roc_auc_score(y_test_full, y_prob_chunks) if y_prob_chunks is not None and len(np.unique(y_test_full)) == 2 else 'N/A'
+        
+        f.write(f'Chunk Accuracy: {chunk_accuracy}\n')
+        f.write(f'Chunk F1 Score: {chunk_f1}\n')
+        f.write(f'Chunk Precision: {chunk_precision}\n')
+        f.write(f'Chunk Recall: {chunk_recall}\n')
+        f.write(f'Chunk AUC: {chunk_auc}\n\n')
+        
+        f.write(classification_report(y_test_full, y_pred_chunks))
     
-    cm = confusion_matrix(y_test_full, y_pred)
+    # Write detailed subject-level results
+    subject_results_df = pd.DataFrame({
+        'subject_id': unique_subjects,
+        'true_label': y_true_subject,
+        'predicted_label': y_pred_subject,
+        'prediction_probability': y_prob_subject if y_prob_subject is not None else np.nan,
+        'num_chunks': [len(subject_pred[subj]) for subj in unique_subjects]
+    })
+    
+    subject_results_df.to_csv(os.path.join(save_base_path, 'subject_level_results.csv'), index=False)
+    
+    # Write chunk-level results for reference
+    write_test_results(y_test_full, y_pred_chunks, test_path_full, save_base_path)
+    
+    # Create confusion matrices for both chunk and subject level
+    # Chunk-level confusion matrix
+    cm_chunk = confusion_matrix(y_test_full, y_pred_chunks)
     plot_confusion_matrix(
-        cm, 
+        cm_chunk, 
         classes=[0, 1], 
         save_path=os.path.join(save_base_path, 
-                              f'confusion_matrix_{config.MAX_FEATURES}_features_{config.OVERSAMPLING}_GRIDSEARCH{config.GridSearch}.png')
+                              f'chunk_confusion_matrix_{config.MAX_FEATURES}_features_{config.OVERSAMPLING}_GRIDSEARCH{config.GridSearch}.png'),
+        title='Chunk-Level Confusion Matrix'
+    )
+    
+    # Subject-level confusion matrix
+    cm_subject = confusion_matrix(y_true_subject, y_pred_subject)
+    plot_confusion_matrix(
+        cm_subject, 
+        classes=[0, 1], 
+        save_path=os.path.join(save_base_path, 
+                              f'subject_confusion_matrix_{config.MAX_FEATURES}_features_{config.OVERSAMPLING}_GRIDSEARCH{config.GridSearch}.png'),
+        title='Subject-Level Confusion Matrix'
     )
 
     return {
@@ -172,7 +269,8 @@ def process_fold(data_type, fold, threshold):
         'f1': f1,
         'precision': precision,
         'recall': recall,
-        'auc': auc
+        'auc': auc,
+        'num_subjects': len(unique_subjects)
     }
 
 def main():

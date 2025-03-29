@@ -1,5 +1,30 @@
 Feature Selection Method: CFS
 Threshold: 0.5
+
+SUBJECT-LEVEL METRICS
+=====================
+Test Accuracy: 0.8043478260869565
+F1 Score: 0.7558931377684652
+Precision: 0.7129446640316206
+Recall: 0.8043478260869565
+AUC: 0.6043956043956044
+
+Number of test subjects: 46
+Number of positive subjects: 7
+Number of negative subjects: 39
+
+              precision    recall  f1-score   support
+
+           0       0.84      0.95      0.89        39
+           1       0.00      0.00      0.00         7
+
+    accuracy                           0.80        46
+   macro avg       0.42      0.47      0.45        46
+weighted avg       0.71      0.80      0.76        46
+
+
+CHUNK-LEVEL METRICS (for reference)
+==================================
 Test Accuracy: 0.6790266512166859
 F1 Score: 0.6202423376932894
 Precision: 0.5999978272369516

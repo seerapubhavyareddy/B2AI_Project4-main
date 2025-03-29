@@ -1,0 +1,28 @@
+SUBJECT-LEVEL METRICS
+=====================
+Test Accuracy: 0.8260869565217391
+F1 Score: 0.8260869565217391
+Precision: 0.8260869565217391
+Recall: 0.8260869565217391
+AUC: 0.846153846153846
+
+Number of test subjects: 46
+Number of positive subjects: 7
+Number of negative subjects: 39
+
+CHUNK-LEVEL METRICS (for reference)
+==================================
+Test Accuracy: 0.7427578215527231
+F1 Score: 0.7403227918711882
+Precision: 0.7382977157790271
+Recall: 0.7427578215527231
+AUC: 0.7735955056179775
+
+              precision    recall  f1-score   support
+
+           0       0.81      0.83      0.82       623
+           1       0.54      0.51      0.52       240
+
+    accuracy                           0.74       863
+   macro avg       0.68      0.67      0.67       863
+weighted avg       0.74      0.74      0.74       863

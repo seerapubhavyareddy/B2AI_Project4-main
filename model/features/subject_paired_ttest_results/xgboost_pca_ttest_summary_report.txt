@@ -1,0 +1,218 @@
+PAIRWISE T-TEST RESULTS SUMMARY
+==============================
+
+=== ACCURACY ===
+fimo vs deep:
+  t-statistic = 0.6217
+  p-value = 0.5515
+  corrected p = 1.0000 ns
+  Cohen's d = 0.3932
+  Mean difference = 0.0198
+
+fimo vs rp:
+  t-statistic = 7.1758
+  p-value = 0.0001
+  corrected p = 0.0006 ***
+  Cohen's d = 4.5384
+  Mean difference = 0.2368
+
+fimo vs reg:
+  t-statistic = 0.2952
+  p-value = 0.7754
+  corrected p = 1.0000 ns
+  Cohen's d = 0.1867
+  Mean difference = 0.0089
+
+deep vs rp:
+  t-statistic = 6.3223
+  p-value = 0.0002
+  corrected p = 0.0014 **
+  Cohen's d = 3.9986
+  Mean difference = 0.2170
+
+deep vs reg:
+  t-statistic = -0.3460
+  p-value = 0.7384
+  corrected p = 1.0000 ns
+  Cohen's d = 0.2188
+  Mean difference = -0.0109
+
+rp vs reg:
+  t-statistic = -6.9678
+  p-value = 0.0001
+  corrected p = 0.0008 ***
+  Cohen's d = 4.4068
+  Mean difference = -0.2279
+
+=== F1 ===
+fimo vs deep:
+  t-statistic = 0.7652
+  p-value = 0.4662
+  corrected p = 1.0000 ns
+  Cohen's d = 0.4840
+  Mean difference = 0.0254
+
+fimo vs rp:
+  t-statistic = 6.3720
+  p-value = 0.0002
+  corrected p = 0.0013 **
+  Cohen's d = 4.0300
+  Mean difference = 0.1952
+
+fimo vs reg:
+  t-statistic = 0.3809
+  p-value = 0.7133
+  corrected p = 1.0000 ns
+  Cohen's d = 0.2409
+  Mean difference = 0.0119
+
+deep vs rp:
+  t-statistic = 5.3435
+  p-value = 0.0008
+  corrected p = 0.0045 **
+  Cohen's d = 3.3795
+  Mean difference = 0.1697
+
+deep vs reg:
+  t-statistic = -0.4201
+  p-value = 0.6857
+  corrected p = 1.0000 ns
+  Cohen's d = 0.2657
+  Mean difference = -0.0136
+
+rp vs reg:
+  t-statistic = -6.1931
+  p-value = 0.0003
+  corrected p = 0.0016 **
+  Cohen's d = 3.9168
+  Mean difference = -0.1833
+
+=== PRECISION ===
+fimo vs deep:
+  t-statistic = 0.6863
+  p-value = 0.5123
+  corrected p = 1.0000 ns
+  Cohen's d = 0.4341
+  Mean difference = 0.0251
+
+fimo vs rp:
+  t-statistic = 4.2674
+  p-value = 0.0030
+  corrected p = 0.0180 *
+  Cohen's d = 2.6989
+  Mean difference = 0.1314
+
+fimo vs reg:
+  t-statistic = 0.3898
+  p-value = 0.7070
+  corrected p = 1.0000 ns
+  Cohen's d = 0.2465
+  Mean difference = 0.0125
+
+deep vs rp:
+  t-statistic = 3.1347
+  p-value = 0.0160
+  corrected p = 0.0962 ns
+  Cohen's d = 1.9825
+  Mean difference = 0.1063
+
+deep vs reg:
+  t-statistic = -0.3622
+  p-value = 0.7272
+  corrected p = 1.0000 ns
+  Cohen's d = 0.2291
+  Mean difference = -0.0127
+
+rp vs reg:
+  t-statistic = -4.1276
+  p-value = 0.0034
+  corrected p = 0.0202 *
+  Cohen's d = 2.6105
+  Mean difference = -0.1189
+
+=== RECALL ===
+fimo vs deep:
+  t-statistic = 0.6217
+  p-value = 0.5515
+  corrected p = 1.0000 ns
+  Cohen's d = 0.3932
+  Mean difference = 0.0198
+
+fimo vs rp:
+  t-statistic = 7.1758
+  p-value = 0.0001
+  corrected p = 0.0006 ***
+  Cohen's d = 4.5384
+  Mean difference = 0.2368
+
+fimo vs reg:
+  t-statistic = 0.2952
+  p-value = 0.7754
+  corrected p = 1.0000 ns
+  Cohen's d = 0.1867
+  Mean difference = 0.0089
+
+deep vs rp:
+  t-statistic = 6.3223
+  p-value = 0.0002
+  corrected p = 0.0014 **
+  Cohen's d = 3.9986
+  Mean difference = 0.2170
+
+deep vs reg:
+  t-statistic = -0.3460
+  p-value = 0.7384
+  corrected p = 1.0000 ns
+  Cohen's d = 0.2188
+  Mean difference = -0.0109
+
+rp vs reg:
+  t-statistic = -6.9678
+  p-value = 0.0001
+  corrected p = 0.0008 ***
+  Cohen's d = 4.4068
+  Mean difference = -0.2279
+
+=== AUC ===
+fimo vs deep:
+  t-statistic = 1.3065
+  p-value = 0.2282
+  corrected p = 1.0000 ns
+  Cohen's d = 0.8263
+  Mean difference = 0.0325
+
+fimo vs rp:
+  t-statistic = 4.6315
+  p-value = 0.0075
+  corrected p = 0.0452 *
+  Cohen's d = 2.9292
+  Mean difference = 0.3276
+
+fimo vs reg:
+  t-statistic = 0.7279
+  p-value = 0.4916
+  corrected p = 1.0000 ns
+  Cohen's d = 0.4604
+  Mean difference = 0.0231
+
+deep vs rp:
+  t-statistic = 4.1417
+  p-value = 0.0108
+  corrected p = 0.0648 ns
+  Cohen's d = 2.6194
+  Mean difference = 0.2950
+
+deep vs reg:
+  t-statistic = -0.2866
+  p-value = 0.7826
+  corrected p = 1.0000 ns
+  Cohen's d = 0.1813
+  Mean difference = -0.0094
+
+rp vs reg:
+  t-statistic = -4.1194
+  p-value = 0.0084
+  corrected p = 0.0504 ns
+  Cohen's d = 2.6053
+  Mean difference = -0.3045
+
